@@ -40,13 +40,12 @@ const addContact = async (body) => {
 };
 
 const updateContact = async (contactId, body) => {
-  const { name, email, phone } = body;
   const data = await listContacts();
   const index = data.findIndex((item) => item.id === contactId);
   if (index === -1) {
     return null;
   }
-  data[index] = { id: contactId, name, email, phone };
+  data[index] = { ...data[index], ...body };
   await updateContacts(data);
   return data[index];
 };

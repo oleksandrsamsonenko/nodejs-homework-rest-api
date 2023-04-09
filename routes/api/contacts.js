@@ -1,21 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const Joi = require("joi");
 
 const HttpError = require("../../helpers/HttpError");
 const contactsService = require(`../../models/contacts`);
-
-const validationSchema = Joi.object({
-  name: Joi.string()
-    .required()
-    .messages({ "any.required": `missing required name field` }),
-  email: Joi.string()
-    .required()
-    .messages({ "any.required": `missing required email field` }),
-  phone: Joi.string()
-    .required()
-    .messages({ "any.required": `missing required phone field` }),
-});
+const {
+  putValidationSchema,
+  postValidationSchema,
+} = require("../../schemas/contacts-shemas");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -42,7 +33,7 @@ router.get("/:id", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    const { error } = validationSchema.validate(req.body);
+    const { error } = postValidationSchema.validate(req.body);
     if (error) {
       throw HttpError(400, error);
     }
@@ -68,12 +59,14 @@ router.delete("/:contactId", async (req, res, next) => {
 
 router.put("/:contactId", async (req, res, next) => {
   try {
-    const { error } = validationSchema.validate(req.body);
-    if (error) {
+    if (JSON.stringify(req.body) === "{}") {
       throw HttpError(400, "Missing Fields");
     }
+    const { error } = putValidationSchema.validate(req.body);
+    if (error) {
+      throw HttpError(400, error.message);
+    }
     const { contactId } = req.params;
-    console.log(contactId);
     const result = await contactsService.updateContact(contactId, req.body);
     if (!result) {
       throw HttpError(404, `Not Found`);
