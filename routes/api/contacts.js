@@ -6,6 +6,9 @@ const {
   putValidateBody,
   favoriteValidateBody,
 } = require("../../utils/contacts-validation");
+const authenticate = require("../../middlewares/authenticate");
+
+router.use(authenticate);
 
 router.get("/", contactsController.listContacts);
 

@@ -3,7 +3,8 @@ const Contact = require("../models/contact");
 
 const listContacts = async (req, res, next) => {
   try {
-    const result = await Contact.find();
+    const { _id: owner } = req.user;
+    const result = await Contact.find({ owner });
     res.json(result);
   } catch (error) {
     next(error);
@@ -25,7 +26,7 @@ const getById = async (req, res, next) => {
 
 const addContact = async (req, res, next) => {
   try {
-    const result = await Contact.create(req.body);
+    const result = await Contact.create({ ...req.body, owner: req.user._id });
     res.status(201).json(result);
   } catch (error) {
     next(error);
